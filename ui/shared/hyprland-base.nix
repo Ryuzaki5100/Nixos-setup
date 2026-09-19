@@ -13,6 +13,7 @@
 {
   # ── Hyprland compositor ─────────────────────────────────────────────────
   programs.hyprland.enable = true;
+  environment.systemPackages = [ pkgs.hyprland ];
 
   # Wayland hints for Electron/Chromium/Firefox.
   environment.variables = {
