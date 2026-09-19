@@ -52,9 +52,13 @@
   # ── Activation cleanup ───────────────────────────────────────────────────
   # Hyprland 0.55 auto-generates a plain-file `hyprland.conf` STUB when it
   # starts without a usable config (e.g. first boot before HM files activate).
-  # That stale stub would shadow the HM-managed hyprland.lua on every launch,
-  # so remove it on each switch to keep the rice reachable.
+  # That stale stub would shadow the HM-managed hyprland.conf, so remove it on
+  # each switch — but only if it is a real file. Never delete the symlink HM
+  # manages, or the rice config would vanish on every activation.
   home.activation.removeHyprlandStub = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    rm -f "$HOME/.config/hypr/hyprland.conf"
+    if [ -f "$HOME/.config/hypr/hyprland.conf" ] && [ ! -L "$HOME/.config/hypr/hyprland.conf" ]; then
+      rm -f "$HOME/.config/hypr/hyprland.conf"
+    fi
+    rm -f "$HOME/.config/hypr/hyprland.lua" "$HOME/.config/hypr/.luarc.json"
   '';
 }
