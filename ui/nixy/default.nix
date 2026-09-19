@@ -35,7 +35,7 @@
             --asterisks \
             --cmd '${pkgs.hyprland}/bin/Hyprland' \
             --greeting 'Welcome' \
-            '--theme' 'border=#89b4fa;text=#cdd6f4;prompt=#89b4fa;action=#94e2d5;button=#89b4fa;container=#1e1e2e;input=#313244' \
+            '--theme' 'border=#9E97F8;text=#C2BED6;prompt=#9E97F8;action=#C4B060;button=#9E97F8;container=#0A0A0C;input=#2D2A36' \
             --power-shutdown 'systemctl poweroff' \
             --power-reboot 'systemctl reboot'
         ''}";
@@ -57,10 +57,11 @@
     TTYVTDisallocate = true;
   };
 
-  # Fonts: JetBrains Mono Nerd Font (UI glyphs) + Inter (UI text).
+  # Fonts: Maple Mono NF (UI/terminal glyphs) + Rubik (UI text) + emoji.
   fonts.packages = [
-    pkgs.nerd-fonts.jetbrains-mono
-    pkgs.inter
+    pkgs.maple-mono.NF
+    pkgs.rubik
+    pkgs.noto-fonts-color-emoji
   ];
 
   # XDG desktop portals (hyprland + gtk fallback).
@@ -81,8 +82,4 @@
       pkgs.xdg-desktop-portal-gtk
     ];
   };
-
-  home-manager.users.${variables.username}.imports = [
-    ./home.nix
-  ];
 }

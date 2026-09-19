@@ -35,7 +35,7 @@
             --asterisks \
             --cmd '${pkgs.hyprland}/bin/Hyprland' \
             --greeting 'heinz' \
-            '--theme' 'border=#cba6f7;text=#cdd6f4;prompt=#cba6f7;action=#94e2d5;button=#cba6f7;container=#1e1e2e;input=#313244' \
+            '--theme' 'border=#33ccff;text=#F4F4F9;prompt=#33ccff;action=#00ff99;button=#33ccff;container=#1E1F29;input=#282A36' \
             --power-shutdown 'systemctl poweroff' \
             --power-reboot 'systemctl reboot'
         ''}";
@@ -57,9 +57,10 @@
     TTYVTDisallocate = true;
   };
 
-  # Fonts: JetBrains Mono Nerd Font (UI glyphs) + Inter (UI text).
+  # Fonts: JetBrains Mono Nerd Font (UI glyphs) + Hack (alacritty) + Inter.
   fonts.packages = [
     pkgs.nerd-fonts.jetbrains-mono
+    pkgs.nerd-fonts.hack
     pkgs.inter
   ];
 
@@ -81,8 +82,4 @@
       pkgs.xdg-desktop-portal-gtk
     ];
   };
-
-  home-manager.users.${variables.username}.imports = [
-    ./home.nix
-  ];
 }

@@ -1,5 +1,6 @@
 # Shared Home Manager module for all Hyprland (TUI) variants.
-# zsh-first shell with the common CLI + Wayland user tooling.
+# zsh-first shell with the common CLI. Visual UI config lives per-variant
+# in ui/<variant>/rice.nix; common Wayland userland lives in hyprland-home.nix.
 {
   pkgs,
   lib,
@@ -8,8 +9,8 @@
   ...
 }:
 {
-  # All TUI variants use zsh as the interactive shell (matching the reference
-  # dotfiles), so the shared fish module is switched off.
+  # All Hyprland variants use zsh as the interactive shell (matching the
+  # reference dotfiles), so the shared fish module is switched off.
   programs.fish.enable = lib.mkForce false;
 
   # ── Shell: zsh + starship ───────────────────────────────────────────────
@@ -45,10 +46,10 @@
       gpl = "git pull";
       gs = "git status";
       gd = "git diff";
-      rebuild-nixos = "sudo nixos-rebuild switch --flake /etc/nixos#(hostname)";
-      update-nixos = "sudo nix flake update /etc/nixos";
-      dot = "cd /etc/nixos";
-      edot = "cd /etc/nixos && nvim";
+      rebuild-nixos = "sudo nixos-rebuild switch --flake $HOME/Nixos-setup#(hostname)";
+      update-nixos = "sudo nix flake update $HOME/Nixos-setup";
+      dot = "cd $HOME/Nixos-setup";
+      edot = "cd $HOME/Nixos-setup && nvim";
       op = "opencode";
     };
 
@@ -83,35 +84,8 @@
     EDITOR = lib.mkForce "nvim";
   };
 
-  # ── Packages shared by every Hyprland variant ───────────────────────────
+  # ── CLI tooling shared by every Hyprland variant ────────────────────────
   home.packages = with pkgs; [
-    # Wayland / WM utilities
-    wl-clipboard
-    wayland-utils
-    libnotify
-    dconf
-    satty
-    wf-recorder
-    hyprpicker
-    hypridle
-    hyprlock
-    swaybg
-    cliphist
-
-    # Media / brightness / audio
-    pamixer
-    wireplumber
-    pavucontrol
-    playerctl
-    brightnessctl
-    mate-polkit
-
-    # GTK / icon theming
-    papirus-icon-theme
-    adw-gtk3
-    gnome-themes-extra
-
-    # CLI
     bat
     ripgrep
     htop
