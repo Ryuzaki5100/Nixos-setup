@@ -60,6 +60,7 @@
     StandardInput = "tty";
     StandardOutput = "tty";
     StandardError = "journal";
+        TTYPath = "/dev/tty1";
     TTYReset = true;
     TTYVHangup = true;
     TTYVTDisallocate = true;
