@@ -33,7 +33,7 @@
             --remember \
             --remember-user-session \
             --asterisks \
-            --cmd '${pkgs.hyprland}/bin/Hyprland' \
+            --cmd '${pkgs.hyprland}/bin/Hyprland --config /home/${variables.username}/.config/hypr/hyprland.lua' \
             --greeting 'frost' \
             '--theme' 'border=#FE8019;text=#EBDBB2;prompt=#FE8019;action=#B8BB26;button=#B8BB26;container=#1D2021;input=#282828' \
             --power-shutdown 'systemctl poweroff' \

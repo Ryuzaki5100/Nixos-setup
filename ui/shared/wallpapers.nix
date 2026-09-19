@@ -24,4 +24,5 @@ in
 
   # Frost (Frost-Phoenix/nixos-config, gruvbox)
   frost = gh "Frost-Phoenix" "nixos-config" "wallpapers/otherWallpaper/gruvbox/japanese_pedestrian_street.png" "1j5770hbxkizs7a48qf43lhykgp0p0dyhyfkmyljyfyqcfgcfbw7";
+  frost-hyprlock = gh "Frost-Phoenix" "nixos-config" "wallpapers/otherWallpaper/gruvbox/forest_road.jpg" "sha256-VXiR77ElDBLM2UzZP/VkjseWnFUVOBLZtdkWkotv2u0=";
 }
