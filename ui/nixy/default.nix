@@ -33,22 +33,13 @@
             --remember \
             --remember-user-session \
             --asterisks \
+            --cmd '${pkgs.hyprland}/bin/Hyprland' \
             --greeting 'Welcome' \
             '--theme' 'border=#89b4fa;text=#cdd6f4;prompt=#89b4fa;action=#94e2d5;button=#89b4fa;container=#1e1e2e;input=#313244' \
             --power-shutdown 'systemctl poweroff' \
             --power-reboot 'systemctl reboot'
         ''}";
         user = "greeter";
-      };
-
-      # Fixes the "command doesn't exist" right after login: greetd needs a
-      # main_session to exec as the logged-in user; without it there's nothing
-      # to start once you authenticate against the greeter.
-      main_session = {
-        command = "${pkgs.writeShellScript "hyprland-launch" ''
-          exec ${pkgs.hyprland}/bin/Hyprland
-        ''}";
-        user = variables.username;
       };
     };
   };

@@ -46,6 +46,7 @@
             --remember \
             --remember-user-session \
             --asterisks \
+            --cmd '${pkgs.hyprland}/bin/Hyprland' \
             --power-shutdown 'systemctl poweroff' \
             --power-reboot 'systemctl reboot' \
             --theme 'border=${accent};text=#cdd6f4;prompt=${accent};action=#94e2d5;button=${accent};container=#1e1e2e;input=#313244'

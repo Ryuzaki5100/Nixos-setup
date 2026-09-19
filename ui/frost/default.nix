@@ -33,22 +33,13 @@
             --remember \
             --remember-user-session \
             --asterisks \
+            --cmd '${pkgs.hyprland}/bin/Hyprland' \
             --greeting 'frost' \
             '--theme' 'border=#94e2d5;text=#cdd6f4;prompt=#94e2d5;action=#94e2d5;container=#1e1e2e;input=#313244' \
             --power-shutdown 'systemctl poweroff' \
             --power-reboot 'systemctl reboot'
         ''}";
         user = "greeter";
-      };
-
-      # Session greetd starts AFTER the user authenticates at the greeter —
-      # the missing piece that hands off to Hyprland instead of dying with
-      # "command does not exist" right after login.
-      main_session = {
-        command = "${pkgs.writeShellScript "hyprland-launch" ''
-          exec ${pkgs.hyprland}/bin/Hyprland
-        ''}";
-        user = variables.username;
       };
     };
   };
