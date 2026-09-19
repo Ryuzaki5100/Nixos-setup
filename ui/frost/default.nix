@@ -6,11 +6,6 @@
   variables,
   ...
 }:
-let
-  # Wallpapers shared with the Home Manager rice; the SDDM theme reuses the
-  # same image as the desktop background.
-  wallpapers = import ../shared/wallpapers.nix { inherit pkgs lib; };
-in
 {
   # Hyprland Wayland compositor.
   programs.hyprland.enable = true;
@@ -24,46 +19,39 @@ in
   # PAM for hyprlock.
   security.pam.services.hyprlock = { };
 
-  # Graphical login manager: SDDM + sddm-astronaut, tinted to the frost
-  # (gruvbox) palette and showing the rice wallpaper.
-  services.xserver.enable = true; # SDDM's greeter runs on X
-  services.displayManager.defaultSession = "hyprland";
-  services.displayManager.sddm = {
+  # TUI login manager (greetd + tuigreet), themed to the frost (gruvbox) palette.
+  services.greetd = {
     enable = true;
-    theme = "sddm-astronaut-theme";
+    settings.default_session = {
+      command = "${pkgs.writeShellScript "tuigreet-launch" ''
+        exec ${pkgs.tuigreet}/bin/tuigreet \
+          --time \
+          --time-format '%H:%M  %A %d %B' \
+          --sessions /run/current-system/sw/share/wayland-sessions \
+          --remember \
+          --remember-user-session \
+          --asterisks \
+          --container-padding 2 \
+          --greeting 'frost' \
+          --theme 'border=#FE8019;text=#EBDBB2;prompt=#FE8019;action=#B8BB26;button=#B8BB26;container=#1D2021;input=#282828' \
+          --power-shutdown 'systemctl poweroff' \
+          --power-reboot 'systemctl reboot'
+      ''}";
+      user = "greeter";
+    };
   };
 
-  environment.systemPackages = [
-    (pkgs.sddm-astronaut.override {
-      themeConfig = {
-        Background = "${wallpapers.frost}";
-        BackgroundColor = "#1D2021";
-        CropBackground = "true";
-        DimBackground = "0.35";
-        DimBackgroundColor = "#1D2021";
-        Font = "Maple Mono NF";
-        FontSize = "14";
-        FormBackgroundColor = "#1D2021";
-        LoginFieldBackgroundColor = "#282828";
-        PasswordFieldBackgroundColor = "#282828";
-        LoginFieldTextColor = "#EBDBB2";
-        PasswordFieldTextColor = "#EBDBB2";
-        PlaceholderTextColor = "#A89984";
-        UserIconColor = "#FE8019";
-        PasswordIconColor = "#FE8019";
-        TimeTextColor = "#EBDBB2";
-        DateTextColor = "#FE8019";
-        HeaderTextColor = "#EBDBB2";
-        HighlightBackgroundColor = "#FE8019";
-        HighlightBorderColor = "#FE8019";
-        HighlightTextColor = "#1D2021";
-        LoginButtonBackgroundColor = "#FE8019";
-        LoginButtonTextColor = "#1D2021";
-        SessionButtonTextColor = "#EBDBB2";
-        SystemButtonsIconsColor = "#EBDBB2";
-      };
-    })
-  ];
+  security.pam.services.greetd.enableGnomeKeyring = true;
+
+  systemd.services.greetd.serviceConfig = {
+    Type = "idle";
+    StandardInput = "tty";
+    StandardOutput = "tty";
+    StandardError = "journal";
+    TTYReset = true;
+    TTYVHangup = true;
+    TTYVTDisallocate = true;
+  };
 
   # Fonts: Maple Mono NF (UI/terminal glyphs) + Rubik (UI text) + emoji.
   fonts.packages = [

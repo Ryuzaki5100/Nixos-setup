@@ -6,8 +6,10 @@
 }:
 
 {
-  # NOTE: no `greeter` user is defined here. The login manager (SDDM) creates
-  # and manages its own `sddm` system user.
+  # NOTE: no `greeter` user is defined here. The greetd NixOS module
+  # auto-defines it as { isSystemUser = true; group = "greeter"; } when
+  # services.greetd.enable; defining it here too trips the
+  # isSystemUser/isNormalUser XOR assertion in users-groups.nix.
   users.users.${variables.username} = {
     isNormalUser = true;
     description = "ryuzaki";
