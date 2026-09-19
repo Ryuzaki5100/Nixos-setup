@@ -40,6 +40,16 @@
         ''}";
         user = "greeter";
       };
+
+      # Fixes the "command doesn't exist" right after login: greetd needs a
+      # main_session to exec as the logged-in user; without it there's nothing
+      # to start once you authenticate against the greeter.
+      main_session = {
+        command = "${pkgs.writeShellScript "hyprland-launch" ''
+          exec ${pkgs.hyprland}/bin/Hyprland
+        ''}";
+        user = variables.username;
+      };
     };
   };
 

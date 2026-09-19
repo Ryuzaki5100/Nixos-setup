@@ -40,6 +40,16 @@
         ''}";
         user = "greeter";
       };
+
+      # Session greetd starts AFTER the user authenticates at the greeter —
+      # the missing piece that hands off to Hyprland instead of dying with
+      # "command does not exist" right after login.
+      main_session = {
+        command = "${pkgs.writeShellScript "hyprland-launch" ''
+          exec ${pkgs.hyprland}/bin/Hyprland
+        ''}";
+        user = variables.username;
+      };
     };
   };
 
