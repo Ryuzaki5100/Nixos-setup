@@ -121,21 +121,20 @@ awww
       };
 
       dwindle = {
-        pseudotile = true;
         preserve_split = true;
       };
 
-      windowrulev2 = [
-        "float, class:(kitty), title:(Kitty)"
-        "float, class:(pavucontrol)"
-        "float, title:^(Open Files)"
-        "center, class:(mpv)"
-        "center, class:(pavucontrol)"
+      windowrule = [
+        "match:class ^(kitty)$, match:title ^(Kitty)$, float on"
+        "match:class ^(pavucontrol)$, float on"
+        "match:title ^(Open Files)$, float on"
+        "match:class ^(mpv)$, center on"
+        "match:class ^(pavucontrol)$, center on"
       ];
 
       layerrule = [
-        "noanim, launcher"
-        "blur, launcher"
+        "match:namespace launcher, no_anim on"
+        "match:namespace launcher, blur on"
       ];
 
       bindm = [

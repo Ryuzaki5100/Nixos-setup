@@ -112,17 +112,17 @@ in
       };
 
       # Scratchpad + floating helpers
-      windowrulev2 = [
-        "float, class:(zen-bin|zen), title:(Picture in picture)"
-        "float, class:(pavucontrol)"
-        "float, title:^(Open Files)"
-        "float, class:(org.mozilla.firefox), title:(Firefox — Sharing Indicator)"
+      windowrule = [
+        "match:class ^(zen-bin|zen)$, match:title ^(Picture in picture)$, float on"
+        "match:class ^(pavucontrol)$, float on"
+        "match:title ^(Open Files)$, float on"
+        "match:class ^(org.mozilla.firefox)$, match:title ^(Firefox — Sharing Indicator)$, float on"
       ];
 
       layerrule = [
-        "noanim, launcher"
-        "noanim, notifications"
-        "blur, launcher"
+        "match:namespace launcher, no_anim on"
+        "match:namespace notifications, no_anim on"
+        "match:namespace launcher, blur on"
       ];
 
       binds = {
@@ -138,7 +138,7 @@ in
         [
           "$mod, Return, exec, ghostty"
           "$mod, Space, exec, tofi-drun --drun-launch=true"
-          "$mod, Shift, space, exec, tofi-run"
+          "$mod, Shift, Space, exec, tofi-run"
           "$mod, Q, killactive"
           "$mod, F, fullscreen"
           "$mod, M, exit"

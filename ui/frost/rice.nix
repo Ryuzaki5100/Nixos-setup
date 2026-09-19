@@ -253,6 +253,8 @@ in
         "match:title ^(Picture-in-Picture)$, pin on"
         "match:title ^(Picture-in-Picture)$, float on"
         "match:class ^(mpv)$, idle_inhibit focus"
+        "match:class ^(pavucontrol)$, float on"
+        "match:class ^(pavucontrol)$, center on"
       ];
 
       layerrule = [
@@ -269,11 +271,6 @@ in
         scroll_event_delay = 100;
         movefocus_cycles_fullscreen = true;
       };
-
-      windowrulev2 = [
-        "float, class:(pavucontrol)"
-        "center, class:(pavucontrol)"
-      ];
 
       bindm = [
         "SUPER, mouse:272, movewindow"
