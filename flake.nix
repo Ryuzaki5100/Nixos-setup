@@ -65,6 +65,7 @@
                 obsitui = prev.callPackage ./pkgs/obsitui.nix { };
                 nixvim-editor = prev.callPackage ./pkgs/nixvim-editor.nix { };
                 gmail-mcp-auth = prev.callPackage ./pkgs/gmail-mcp-auth.nix { };
+                balena-etcher = prev.callPackage ./pkgs/balena-etcher.nix { };
               })
             ];
           }

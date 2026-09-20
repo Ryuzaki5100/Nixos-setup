@@ -61,6 +61,9 @@ in
     pkgs.obsitui
     pkgs.nixvim-editor
 
+    # Utilities
+    balena-etcher
+
     # Fun
     cmatrix
     posting
