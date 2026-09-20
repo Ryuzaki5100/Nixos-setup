@@ -98,6 +98,10 @@
       new_status = "master";
     };
 
+    misc = {
+      disable_watchdog_warning = true;
+    };
+
     # windowrules (upstream v1 rules translated to 0.55 match: syntax)
     windowrule = [
       "match:class ^(kitty)$, float on"
@@ -124,7 +128,7 @@
         "$mainMod, w, exec, wofi --show drun"
         "$mainMod, R, exec, rofiWindow"
         "$mainMod, P, pseudo," # dwindle
-        "$mainMod, J, togglesplit," # dwindle
+        "$mainMod, J, layoutmsg, togglesplit," # dwindle (0.54+ moved to layoutmsg)
 
         # Switch Keyboard Layouts
         "$mainMod, SPACE, exec, hyprctl switchxkblayout teclado-gamer-husky-blizzard next"
