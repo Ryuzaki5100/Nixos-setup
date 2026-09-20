@@ -6,6 +6,9 @@
 }:
 
 {
+  # fish is the default shell for every user/variant (available system-wide).
+  programs.fish.enable = true;
+
   # NOTE: no `greeter` user is defined here. The greetd NixOS module
   # auto-defines it as { isSystemUser = true; group = "greeter"; } when
   # services.greetd.enable; defining it here too trips the
@@ -13,6 +16,7 @@
   users.users.${variables.username} = {
     isNormalUser = true;
     description = "ryuzaki";
+    shell = pkgs.fish;
 
     extraGroups = [
       "networkmanager"

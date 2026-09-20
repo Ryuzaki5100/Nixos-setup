@@ -104,8 +104,11 @@ in
     size = 24;
   };
 
-  # ── Shell: powerlevel10k (override shared starship) ──────────────────────
-  programs.starship.enable = lib.mkForce false;
+  # ── Shell: fish (the default) uses starship; zsh keeps powerlevel10k ─────
+  programs.starship = {
+    enable = lib.mkForce true;
+    enableZshIntegration = lib.mkForce false;
+  };
   programs.zsh = {
     plugins = [
       {

@@ -20,14 +20,18 @@
   security.pam.services.hyprlock = { };
 
   # TUI login manager (greetd + tuigreet), themed to the nixy palette.
+  # useTextGreeter sets TTYPath=/dev/tty1 (+ tty options) which greetd needs to
+  # run a TUI greeter; --cmd launches Hyprland against the Home-Manager rice.
+  services.displayManager.defaultSession = "hyprland";
   services.greetd = {
     enable = true;
+    useTextGreeter = true;
     settings.default_session = {
       command = "${pkgs.writeShellScript "tuigreet-launch" ''
         exec ${pkgs.tuigreet}/bin/tuigreet \
           --time \
           --time-format '%H:%M  %A %d %B' \
-          --sessions /run/current-system/sw/share/wayland-sessions \
+          --cmd '${pkgs.hyprland}/bin/Hyprland --config /home/${variables.username}/.config/hypr/hyprland.conf' \
           --remember \
           --remember-user-session \
           --asterisks \
@@ -42,16 +46,6 @@
   };
 
   security.pam.services.greetd.enableGnomeKeyring = true;
-
-  systemd.services.greetd.serviceConfig = {
-    Type = "idle";
-    StandardInput = "tty";
-    StandardOutput = "tty";
-    StandardError = "journal";
-    TTYReset = true;
-    TTYVHangup = true;
-    TTYVTDisallocate = true;
-  };
 
   # Fonts: Maple Mono NF (UI/terminal glyphs) + Rubik (UI text) + emoji.
   fonts.packages = [

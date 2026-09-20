@@ -18,17 +18,17 @@
 
     shellAliases = {
       nixvim = "nix run github:Ryuzaki5100/nixvim --refresh";
-      rebuild-nixos = "sudo nixos-rebuild switch --flake /etc/nixos#(hostname)";
-      update-nixos = "sudo nix flake update /etc/nixos";
-      check = "sudo nix flake check /etc/nixos";
+      rebuild-nixos = "sudo nixos-rebuild switch --flake $HOME/Nixos-setup#(hostname)";
+      update-nixos = "sudo nix flake update $HOME/Nixos-setup";
+      check = "sudo nix flake check $HOME/Nixos-setup";
       search = "nix search nixpkgs";
       display = "chafa -f kitty --fit-width";
       clock = "clock-rs -c bright-black -B -b";
-      edot = "cd /etc/nixos && nixvim";
-      dot = "cd /etc/nixos";
-      ga = "git -C /etc/nixos add .";
+      edot = "cd $HOME/Nixos-setup && nixvim";
+      dot = "cd $HOME/Nixos-setup";
+      ga = "git -C $HOME/Nixos-setup add .";
       op = "opencode";
-      yt = "/etc/nixos/scripts/download-vid.sh";
+      yt = "$HOME/Nixos-setup/scripts/download-vid.sh";
     };
 
     functions = {
@@ -47,8 +47,8 @@
               echo "usage: set-ui <gnome|nixy|heinz|frost>"
               return 1
           end
-          sed -i 's/^  ui = .*;$/  ui = "'$argv[1]'";/' /etc/nixos/variables.nix
-          sudo nixos-rebuild switch --flake /etc/nixos#(hostname)
+          sed -i 's/^  ui = .*;$/  ui = "'$argv[1]'";/' $HOME/Nixos-setup/variables.nix
+          sudo nixos-rebuild switch --flake $HOME/Nixos-setup#(hostname)
         '';
       };
     };

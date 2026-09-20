@@ -9,10 +9,8 @@
   ...
 }:
 {
-  # All Hyprland variants use zsh as the interactive shell (matching the
-  # reference dotfiles), so the shared fish module is switched off.
-  programs.fish.enable = lib.mkForce false;
-
+  # fish stays enabled as the default shell for every variant (see
+  # modules/system/users.nix); zsh is also available for the rices that use it.
   # ── Shell: zsh + starship ───────────────────────────────────────────────
   programs.zsh = {
     enable = true;

@@ -4,8 +4,8 @@
   xdg.configFile."kitty/kitty.conf".text = ''
     # vim:ft=kitty
 
-    #zshell
-    shell zsh
+    #shell
+    shell fish
 
     # Remove close window confirm
     confirm_os_window_close 0
