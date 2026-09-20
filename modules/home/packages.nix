@@ -63,6 +63,7 @@ in
 
     # Utilities
     balena-etcher
+    pv
 
     # Fun
     cmatrix
