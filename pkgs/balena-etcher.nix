@@ -4,6 +4,7 @@
   fetchurl,
   writeShellScriptBin,
   symlinkJoin,
+  xhost,
 }:
 
 let
@@ -60,6 +61,12 @@ let
   '';
 
   rootLauncher = writeShellScriptBin "balena-etcher-root" ''
+    # GNOME's XWayland access control rejects root's connections, so the
+    # root-launched Electron gets a blank window ("Authorization required, but
+    # no authorization protocol specified"). Grant root access to this display
+    # for the session; root can already do anything, so this adds no real risk.
+    ${xhost}/bin/xhost +SI:localuser:root >/dev/null 2>&1 || true
+
     exec pkexec ${rootExec}/bin/balena-etcher-root-exec \
       "''${DISPLAY:-}" "''${XAUTHORITY:-}" "$@"
   '';
