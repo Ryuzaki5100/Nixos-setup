@@ -8,7 +8,7 @@
 #   ui = "heinz";   # Hyprland + kitty + alacritty + rofi + dunst + waybar + zsh (HeinzDev/Hyprland-dotfiles)
 #   ui = "frost";   # Hyprland + waybar + rofi + swaync + nvim + ghostty + zsh (Frost-Phoenix/nixos-config)
 {
-  ui = "heinz";
+  ui = "gnome";
 
   username = "ryuzaki";
   hostname = "nixos";
