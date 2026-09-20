@@ -1,4 +1,10 @@
-{ lib, appimageTools, fetchurl, runtimeShell }:
+{
+  lib,
+  appimageTools,
+  fetchurl,
+  writeShellScriptBin,
+  symlinkJoin,
+}:
 
 let
   pname = "balena-etcher";
@@ -12,39 +18,58 @@ let
   appimageContents = appimageTools.extractType2 {
     inherit pname version src;
   };
-in
-appimageTools.wrapType2 rec {
-  inherit pname version src;
 
-  extraInstallCommands = ''
-    install -Dm444 ${appimageContents}/balenaEtcher.desktop -t $out/share/applications/
-    install -Dm444 ${appimageContents}/usr/share/icons/hicolor/256x256/balena-etcher.png \
-      -t $out/share/icons/hicolor/256x256/apps/
+  wrapped = appimageTools.wrapType2 rec {
+    inherit pname version src;
 
-    # Etcher's own elevation logic shells out to a hardcoded /usr/bin/pkexec
-    # or /usr/bin/kdesudo, neither of which exists inside the bubblewrap FHS
-    # sandbox this AppImage runs in (and setuid cannot work there anyway).
-    # Launch the sandboxed app as root via the host's pkexec so Etcher sees
-    # euid 0 and skips elevation entirely; --no-sandbox is required because
-    # Chromium refuses to start as root otherwise.
-    cat > $out/bin/balena-etcher-root <<EOF
-    #!${runtimeShell}
-    exec pkexec $out/bin/balena-etcher --no-sandbox "\$@"
-    EOF
-    chmod +x $out/bin/balena-etcher-root
+    extraInstallCommands = ''
+      install -Dm444 ${appimageContents}/balenaEtcher.desktop -t $out/share/applications/
+      install -Dm444 ${appimageContents}/usr/share/icons/hicolor/256x256/balena-etcher.png \
+        -t $out/share/icons/hicolor/256x256/apps/
 
-    substituteInPlace $out/share/applications/balenaEtcher.desktop \
-      --replace-fail 'Exec=balena-etcher %U' 'Exec=balena-etcher-root %U'
+      substituteInPlace $out/share/applications/balenaEtcher.desktop \
+        --replace-fail 'Exec=balena-etcher %U' 'Exec=balena-etcher-root %U'
+    '';
+
+    meta = {
+      description = "Flash OS images to SD cards and USB drives, safely and easily";
+      homepage = "https://etcher.balena.io";
+      downloadPage = "https://github.com/balena-io/etcher/releases";
+      changelog = "https://github.com/balena-io/etcher/releases/tag/v${version}";
+      license = lib.licenses.asl20;
+      sourceProvenance = with lib.sourceTypes; [ binaryNativeCode ];
+      platforms = [ "x86_64-linux" ];
+      mainProgram = pname;
+    };
+  };
+
+  # Etcher's own elevation logic shells out to a hardcoded /usr/bin/pkexec or
+  # /usr/bin/kdesudo, neither of which exists inside the bubblewrap FHS sandbox
+  # the AppImage runs in (and setuid can't work there anyway), so it has to run
+  # as root. But pkexec drops DISPLAY/XAUTHORITY (they are only kept when the
+  # action carries the allow_gui annotation) and always drops WAYLAND_DISPLAY,
+  # leaving Electron with no display and crashing with SIGSEGV. So the launcher
+  # forwards them as *arguments*, which pkexec passes through untouched, and
+  # this root-side script re-exports them before starting Electron via XWayland.
+  # --no-sandbox is required because Chromium refuses to start as root.
+  rootExec = writeShellScriptBin "balena-etcher-root-exec" ''
+    if [ -n "''${1:-}" ]; then export DISPLAY="$1"; fi
+    if [ -n "''${2:-}" ]; then export XAUTHORITY="$2"; fi
+    shift 2
+    exec ${wrapped}/bin/${pname} --no-sandbox "$@"
   '';
 
-  meta = {
-    description = "Flash OS images to SD cards and USB drives, safely and easily";
-    homepage = "https://etcher.balena.io";
-    downloadPage = "https://github.com/balena-io/etcher/releases";
-    changelog = "https://github.com/balena-io/etcher/releases/tag/v${version}";
-    license = lib.licenses.asl20;
-    sourceProvenance = with lib.sourceTypes; [ binaryNativeCode ];
-    platforms = [ "x86_64-linux" ];
-    mainProgram = pname;
-  };
+  rootLauncher = writeShellScriptBin "balena-etcher-root" ''
+    exec pkexec ${rootExec}/bin/balena-etcher-root-exec \
+      "''${DISPLAY:-}" "''${XAUTHORITY:-}" "$@"
+  '';
+in
+symlinkJoin {
+  name = "${pname}-${version}";
+  paths = [
+    wrapped
+    rootLauncher
+    rootExec
+  ];
+  meta = wrapped.meta;
 }
