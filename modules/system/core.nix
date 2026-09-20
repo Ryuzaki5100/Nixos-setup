@@ -16,6 +16,13 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  # Let the active local user write raw images to removable USB storage
+  # (balenaEtcher, dd, ...) without root, via systemd-logind uaccess ACLs.
+  # Re-plug the device (or run `sudo udevadm trigger`) after first applying.
+  services.udev.extraRules = ''
+    SUBSYSTEM=="block", ENV{ID_BUS}=="usb", TAG+="uaccess"
+  '';
+
   # Latest kernel.
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
