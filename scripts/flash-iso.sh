@@ -33,7 +33,13 @@ fmt_time() {
 }
 
 FIFO_DIR=""
-cleanup() { [ -n "$FIFO_DIR" ] && rm -rf "$FIFO_DIR"; }
+UDEV_STOPPED=""
+cleanup() {
+    [ -n "$FIFO_DIR" ] && rm -rf "$FIFO_DIR"
+    if [ -n "$UDEV_STOPPED" ]; then
+        udevadm control --start-exec-queue 2>/dev/null || true
+    fi
+}
 trap cleanup EXIT
 
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
@@ -121,6 +127,27 @@ while read -r part fstype; do
     fi
 done < <(lsblk -pno NAME,FSTYPE "$dev")
 
+# Clear leftover partition tables / filesystem signatures. A stale backup GPT
+# at the end of a reused stick makes UEFI firmware refuse to boot a freshly
+# dd'ed ISO, so wipe the primary (start) and backup (end) metadata first.
+wipe_signatures() {
+    local dev="$1" bytes sectors
+    bytes="$(blockdev --getsize64 "$dev")"
+    sectors=$(( bytes / 512 ))
+    printf 'Clearing old partition tables/signatures on %s ...\n' "$dev"
+    if command -v wipefs >/dev/null 2>&1; then
+        wipefs --all --force "$dev" >/dev/null 2>&1 || true
+    fi
+    # Belt and braces: zero the first and last 16 MiB (MBR + primary/backup GPT).
+    dd if=/dev/zero of="$dev" bs=1M count=16 conv=fsync status=none
+    if [ "$sectors" -gt 65536 ]; then
+        dd if=/dev/zero of="$dev" bs=512 seek=$(( sectors - 32768 )) count=32768 \
+            conv=fsync status=none
+    fi
+}
+
+wipe_signatures "$dev"
+
 flash_with_dd() {
     local bs=4194304 line done=0 pct=0 width=30 filled=0 bar
     local elapsed=0 rate=0 eta=0 rc=0 dd_pid
@@ -128,7 +155,7 @@ flash_with_dd() {
     local fifo="$FIFO_DIR/progress"
     mkfifo "$fifo"
 
-    dd if="$iso" of="$dev" bs="$bs" status=progress conv=fsync 2>"$fifo" &
+    dd if="$iso" of="$dev" bs="$bs" $direct_flag status=progress 2>"$fifo" &
     dd_pid=$!
 
     while IFS= read -r -d $'\r' line; do
@@ -157,15 +184,38 @@ flash_with_dd() {
     return "$rc"
 }
 
+# Prefer O_DIRECT: it bypasses the page cache, so the meter tracks real device
+# writes and there is no multi-GB flush at close (which looked like a hang at
+# 100%). Fall back to buffered I/O if the device rejects O_DIRECT.
+direct_flag=""
+if dd if=/dev/zero of="$dev" bs=4M count=1 oflag=direct status=none 2>/dev/null; then
+    direct_flag="oflag=direct"
+fi
+
+# Freeze udev rule execution while we own the device. Otherwise its probe
+# workers fight the write for I/O and one can stall for minutes (the kernel
+# logs "sda: Worker ... is taking a long time"), which also looks like a hang.
+if command -v udevadm >/dev/null 2>&1 && udevadm control --stop-exec-queue 2>/dev/null; then
+    UDEV_STOPPED=1
+fi
+
 printf '\nFlashing %s -> %s\n' "$iso" "$dev"
 start_time=$SECONDS
 
 if command -v pv >/dev/null 2>&1; then
-    pv -s "$total" -peta "$iso" | dd of="$dev" bs=4M conv=fsync status=none
+    pv -s "$total" -peta "$iso" | dd of="$dev" bs=4M $direct_flag status=none
     printf '\n'
 else
     flash_with_dd
 fi
 
-sync
+# Flush only this device — a system-wide `sync` can hang on unrelated mounts.
+printf 'Flushing buffers to %s ...\n' "$dev"
+blockdev --flushbufs "$dev" 2>/dev/null || sync
+
+if [ -n "$UDEV_STOPPED" ]; then
+    udevadm control --start-exec-queue 2>/dev/null || true
+    UDEV_STOPPED=""
+fi
+
 printf 'Done in %s. You can safely remove %s.\n' "$(fmt_time "$((SECONDS - start_time))")" "$dev"

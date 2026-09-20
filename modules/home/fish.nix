@@ -29,7 +29,7 @@
       ga = "git -C $HOME/Nixos-setup add .";
       op = "opencode";
       yt = "$HOME/Nixos-setup/scripts/download-vid.sh";
-      flash = ".~/Nixos-setup/scripts/flash-iso.sh";
+      flash = "~/Nixos-setup/scripts/flash-iso.sh";
     };
 
     functions = {
