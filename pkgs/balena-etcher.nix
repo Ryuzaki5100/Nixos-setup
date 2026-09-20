@@ -1,4 +1,4 @@
-{ lib, appimageTools, fetchurl }:
+{ lib, appimageTools, fetchurl, runtimeShell }:
 
 let
   pname = "balena-etcher";
@@ -21,8 +21,20 @@ appimageTools.wrapType2 rec {
     install -Dm444 ${appimageContents}/usr/share/icons/hicolor/256x256/balena-etcher.png \
       -t $out/share/icons/hicolor/256x256/apps/
 
+    # Etcher's own elevation logic shells out to a hardcoded /usr/bin/pkexec
+    # or /usr/bin/kdesudo, neither of which exists inside the bubblewrap FHS
+    # sandbox this AppImage runs in (and setuid cannot work there anyway).
+    # Launch the sandboxed app as root via the host's pkexec so Etcher sees
+    # euid 0 and skips elevation entirely; --no-sandbox is required because
+    # Chromium refuses to start as root otherwise.
+    cat > $out/bin/balena-etcher-root <<EOF
+    #!${runtimeShell}
+    exec pkexec $out/bin/balena-etcher --no-sandbox "\$@"
+    EOF
+    chmod +x $out/bin/balena-etcher-root
+
     substituteInPlace $out/share/applications/balenaEtcher.desktop \
-      --replace-fail 'Exec=balena-etcher %U' 'Exec=${meta.mainProgram} %U'
+      --replace-fail 'Exec=balena-etcher %U' 'Exec=balena-etcher-root %U'
   '';
 
   meta = {
